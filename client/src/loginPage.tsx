@@ -1,46 +1,53 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signIn, signUp } from './authService';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { signIn, signUp } from "./authService";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignIn = async (e: { preventDefault: () => void; }) => {
+  useEffect(() => {
+    console.log("hello");
+    fetch("http://localhost:3009/api")
+      .then((res) => res.json())
+      .then((data) => console.log(data));
+  }, []);
+
+  const handleSignIn = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const session = await signIn(email, password);
-      console.log('Sign in successful', session);
-      if (session && typeof session.AccessToken !== 'undefined') {
-        sessionStorage.setItem('accessToken', session.AccessToken);
-        if (sessionStorage.getItem('accessToken')) {
-          window.location.href = '/home';
+      console.log("Sign in successful", session);
+      if (session && typeof session.AccessToken !== "undefined") {
+        sessionStorage.setItem("accessToken", session.AccessToken);
+        if (sessionStorage.getItem("accessToken")) {
+          window.location.href = "/home";
         } else {
-          console.error('Session token was not set properly.');
+          console.error("Session token was not set properly.");
         }
       } else {
-        console.error('SignIn session or AccessToken is undefined.');
+        console.error("SignIn session or AccessToken is undefined.");
       }
     } catch (error) {
       alert(`Sign in failed: ${error}`);
     }
   };
 
-  const handleSignUp = async (e: { preventDefault: () => void; }) => {
+  const handleSignUp = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      alert("Passwords do not match");
       return;
     }
     try {
       await signUp(email, password);
-      navigate('/confirm', { state: { email } });
+      navigate("/confirm", { state: { email } });
     } catch (error) {
       alert(`Sign up failed: ${error}`);
     }
@@ -49,7 +56,9 @@ const LoginPage = () => {
   return (
     <div className="loginForm">
       <h1>Welcome</h1>
-      <h4>{isSignUp ? 'Sign up to create an account' : 'Sign in to your account'}</h4>
+      <h4>
+        {isSignUp ? "Sign up to create an account" : "Sign in to your account"}
+      </h4>
       <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
         <div>
           <input
@@ -86,10 +95,12 @@ const LoginPage = () => {
             />
           </div>
         )}
-        <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
+        <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
       </form>
       <button onClick={() => setIsSignUp(!isSignUp)}>
-        {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+        {isSignUp
+          ? "Already have an account? Sign In"
+          : "Need an account? Sign Up"}
       </button>
     </div>
   );
